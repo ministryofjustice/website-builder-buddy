@@ -1,8 +1,12 @@
 <?php
 /**
- * Plugin Name: Builder Buddy
+ * Plugin Name: Website Builder Buddy
  * Description: Adds a friendly sidebar chatbot called Builder Buddy to the Gutenberg editor.
- * Author: Your Name
+ * Author:      Ministry of Justice - Robert Lowe
+ * Author URI:  https://github.com/ministryofjustice
+ * License:     MIT Licence
+ * License URI: https://opensource.org/licenses/MIT
+ * Copyright:   Crown Copyright (c) Ministry of Justice
  * Version: 1.0.0
  */
 
