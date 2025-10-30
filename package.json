@@ -1,0 +1,22 @@
+{
+    "name": "website-builder-buddy",
+    "version": "1.0.0",
+    "description": "Builder Buddy – a Gutenberg sidebar chatbot plugin.",
+    "main": "build/index.js",
+    "devDependencies": {
+        "@wordpress/block-editor": "*",
+        "@wordpress/blocks": "*",
+        "@wordpress/components": "*",
+        "@wordpress/element": "*",
+        "@wordpress/i18n": "*",
+        "@wordpress/scripts": "*",
+        "laravel-mix": "*",
+        "sass": "*",
+        "import-glob-loader": "*"
+      },
+      "scripts": {
+        "build": "wp-scripts build && NODE_ENV=production webpack --progress --config=node_modules/laravel-mix/setup/webpack.config.js"
+      }
+    
+  }
+  
