@@ -1,6 +1,6 @@
 {
     "name": "ministryofjustice/website-builder-buddy",
-    "description": "WP plugin that adds addtional blocks.",
+    "description": "Adds a friendly sidebar chatbot called Builder Buddy to the Gutenberg editor.",
     "type": "wordpress-plugin",
     "license": "MIT",
     "minimum-stability": "dev",
