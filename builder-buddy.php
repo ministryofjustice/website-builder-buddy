@@ -35,37 +35,70 @@ function builder_buddy_enqueue_assets() {
         filemtime( plugin_dir_path( __FILE__ ) . 'build/style.min.css' )
     );
 
-    // Get saved search endpoint (no default)
-    $search_endpoint = get_option( 'builder_buddy_search_endpoint', '' );
-
     wp_localize_script( 'builder-buddy-sidebar', 'builderBuddyData', array(
         'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-        'searchEndpoint' => esc_url( $search_endpoint ),
+        'nonce'    => wp_create_nonce('builder_buddy_nonce'),
     ));
 }
 add_action( 'enqueue_block_editor_assets', 'builder_buddy_enqueue_assets' );
 
-add_action('wp_ajax_fetch_doc', 'builder_buddy_fetch_doc');
-add_action('wp_ajax_nopriv_fetch_doc', 'builder_buddy_fetch_doc');
+add_action('wp_ajax_ask_builder_buddy', 'builder_buddy_ask');
+add_action('wp_ajax_nopriv_ask_builder_buddy', 'builder_buddy_ask');
 
-function builder_buddy_fetch_doc() {
-    $doc_id = sanitize_text_field($_GET['doc_id']);
-    if (!$doc_id) {
-        wp_send_json_error('Missing doc_id');
-    }
+function builder_buddy_ask() {
+    
+    
+      // Verify nonce for security
+      check_ajax_referer('builder_buddy_nonce', 'nonce');
 
+      $message = isset($_POST['message']) ? sanitize_text_field($_POST['message']) : '';
+  
+      if (empty($message)) {
+          wp_send_json_error(['answer' => 'No message provided.']);
+      }
+    
     // Get saved fetch endpoint (no default)
-    $fetch_endpoint = get_option( 'builder_buddy_fetch_endpoint', '' );
+    $assistant_endpoint = get_option( 'builder_buddy_endpoint', '' );
 
-    if(empty($fetch_endpoint)){
-        wp_send_json_error('No Fetch API URL is configured');
+    if(empty($assistant_endpoint)){
+        wp_send_json_error(['answer' => 'No Assistant Endpoint URL is configured']);
     }
 
-    $api_url = $fetch_endpoint . $doc_id;
-    $response = wp_remote_get($api_url);
+
+    // Your JSON payload
+    $data = [
+        'question' => $message,
+        'top_k'    => 3,
+        'filters'  => null,
+    ];
+
+    // Encode data to JSON safely
+    $json_data = wp_json_encode( $data );
+
+    // Value provided into the container via GitAction secrets
+    $wb_config_env_value = hc_get_env_variable('WB_CONFIG');
+
+   if(empty($wb_config_env_value)){
+        wp_send_json_error(['answer' => 'WB_CONFIG value not found']);
+    }
+
+    // Prepare request arguments
+    $args = [
+        'method'      => 'POST',
+        'headers'     => [
+            'Content-Type'  => 'application/json',
+            'Cookie'        => 'WB_CONFIG=' . $wb_config_env_value,
+        ],
+        'body'        => $json_data,
+        'timeout'     => 20,
+        'data_format' => 'body',
+    ];
+
+    // Make the request
+    $response = wp_remote_request( $assistant_endpoint, $args );
 
     if (is_wp_error($response)) {
-        wp_send_json_error('Failed to reach API');
+        wp_send_json_error(['answer' => 'Failed to reach assistant endpoint']);
     }
 
     $body = wp_remote_retrieve_body($response);
