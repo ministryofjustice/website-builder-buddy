@@ -21,16 +21,22 @@ add_action( 'admin_init', function() {
         'default' => '',
     ]);
 
+    register_setting( 'builder_buddy_settings', 'builder_buddy_endpoint_api_key', [
+        'type' => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+        'default' => '',
+    ] );
+
     add_settings_section(
         'builder_buddy_main_section',
-        'General Settings',
+        'Assistant Endpoint Settings',
         '__return_null',
         'builder_buddy_settings'
     );
 
     add_settings_field(
         'builder_buddy_endpoint',
-        'Assistant Endpoint URL',
+        'Endpoint URL',
         function() {
             $value = get_option( 'builder_buddy_endpoint', '' );
             echo '<input type="url" name="builder_buddy_endpoint" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="" />';
@@ -39,6 +45,18 @@ add_action( 'admin_init', function() {
         'builder_buddy_settings',
         'builder_buddy_main_section'
     ); 
+
+    add_settings_field(
+        'builder_buddy_endpoint_api_key',
+        'Endpoint API Key',
+        function() {
+            $value = get_option( 'builder_buddy_endpoint_api_key', '' );
+            echo '<input type="text" name="builder_buddy_endpoint_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="" />';
+            echo '<p class="description">API key used when communicating with the assistant.</p>';
+        },
+        'builder_buddy_settings',
+        'builder_buddy_main_section'
+    );
 
 });
 
@@ -56,9 +74,9 @@ function builder_buddy_settings_page() {
         </form>
     </div>
     <?php
-
+        
         /* Enddpoint debug code
-
+        
         // Get saved fetch endpoint (no default)
         $assistant_endpoint = get_option( 'builder_buddy_endpoint', '' );
 
@@ -67,8 +85,8 @@ function builder_buddy_settings_page() {
 
             // Your JSON payload
             $data = [
-                //'question' => 'How do I add an accordian block?',
-                'question' => 'How do I build a listing page',
+                'question' => 'How do I add an accordian block?',
+                //'question' => 'How do I build a listing page',
                 'top_k'    => 3,
                 'filters'  => null,
             ];
