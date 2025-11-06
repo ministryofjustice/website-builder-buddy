@@ -64,6 +64,12 @@ function builder_buddy_ask() {
         wp_send_json_error(['answer' => 'No Assistant Endpoint URL is configured']);
     }
 
+    $assistant_endpoint_api_key = get_option( 'builder_buddy_endpoint_api_key', '' );
+
+    if(empty($assistant_endpoint_api_key)){
+        wp_send_json_error(['answer' => 'Endpoint API Key value not found']);
+    }
+
 
     // Your JSON payload
     $data = [
@@ -75,19 +81,12 @@ function builder_buddy_ask() {
     // Encode data to JSON safely
     $json_data = wp_json_encode( $data );
 
-    // Value provided into the container via GitAction secrets
-    $wb_config_env_value = hc_get_env_variable('WB_CONFIG');
-
-   if(empty($wb_config_env_value)){
-        wp_send_json_error(['answer' => 'WB_CONFIG value not found']);
-    }
-
     // Prepare request arguments
     $args = [
         'method'      => 'POST',
         'headers'     => [
             'Content-Type'  => 'application/json',
-            'Cookie'        => 'WB_CONFIG=' . $wb_config_env_value,
+            'x-api-key'     => $assistant_endpoint_api_key,
         ],
         'body'        => $json_data,
         'timeout'     => 20,

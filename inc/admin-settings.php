@@ -94,26 +94,14 @@ function builder_buddy_settings_page() {
             // Encode data to JSON safely
             $json_data = wp_json_encode( $data );
 
-            // Value provided into the container via GitAction secrets
-            $wb_config_env_value = hc_get_env_variable('WB_CONFIG');
-
-            // Define cookie(s)
-            $cookies = [
-                'WB_CONFIG' => $wb_config_env_value, // replace with your actual cookie name/value
-            ];
-
-            // Build cookie header string
-            $cookie_header = '';
-            foreach ( $cookies as $name => $value ) {
-                $cookie_header .= "{$name}={$value}; ";
-            }
-
+            $assistant_endpoint_api_key = get_option( 'builder_buddy_endpoint_api_key', '' );
+   
             // Prepare request arguments
             $args = [
                 'method'      => 'POST',
                 'headers'     => [
                     'Content-Type'  => 'application/json',
-                    'Cookie'        => trim( $cookie_header ),
+                    'x-api-key'     => $assistant_endpoint_api_key,
                 ],
                 'body'        => $json_data,
                 'timeout'     => 20,
